@@ -16,7 +16,7 @@ namespace Samples
         internal static object Run(string accessToken)
         {
             // Create a tracer.
-            using var tracerFactory = TracerFactory.Create(
+            using var tracerFactory = TracerProviderSdk.Create(
                 builder => builder.UseLightStep(o =>
                 {
                     o.AccessToken = accessToken;

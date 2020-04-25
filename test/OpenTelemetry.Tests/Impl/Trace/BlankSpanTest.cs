@@ -35,43 +35,43 @@ namespace OpenTelemetry.Trace.Test
             multipleAttributes.Add("MyLongAttributeKey", 123);
             multipleAttributes.Add("MyDoubleAttributeKey", 0.005);
             // Tests only that all the methods are not crashing/throwing errors.
-            BlankSpan.Instance.SetAttribute(
+            NoopSpan.Instance.SetAttribute(
                 "MyStringAttributeKey2", "MyStringAttributeValue2");
             foreach (var a in attributes)
             {
-                BlankSpan.Instance.SetAttribute(a.Key, a.Value);
+                NoopSpan.Instance.SetAttribute(a.Key, a.Value);
             }
 
             foreach (var a in multipleAttributes)
             {
-                BlankSpan.Instance.SetAttribute(a.Key, a.Value);
+                NoopSpan.Instance.SetAttribute(a.Key, a.Value);
             }
 
-            BlankSpan.Instance.AddEvent("MyEvent");
-            BlankSpan.Instance.AddEvent(new Event("MyEvent", attributes));
-            BlankSpan.Instance.AddEvent(new Event("MyEvent", multipleAttributes));
-            BlankSpan.Instance.AddEvent(new Event("MyEvent"));
+            NoopSpan.Instance.AddEvent("MyEvent");
+            NoopSpan.Instance.AddEvent(new Event("MyEvent", attributes));
+            NoopSpan.Instance.AddEvent(new Event("MyEvent", multipleAttributes));
+            NoopSpan.Instance.AddEvent(new Event("MyEvent"));
 
-            Assert.False(BlankSpan.Instance.Context.IsValid);
-            Assert.False(BlankSpan.Instance.IsRecording);
+            Assert.False(NoopSpan.Instance.Context.IsValid);
+            Assert.False(NoopSpan.Instance.IsRecording);
 
-            BlankSpan.Instance.Status = Status.Ok;
-            BlankSpan.Instance.End();
+            NoopSpan.Instance.Status = Status.Ok;
+            NoopSpan.Instance.End();
         }
 
         [Fact]
         public void BadArguments_DoesNotThrow()
         {
-            BlankSpan.Instance.Status = new Status();
-            BlankSpan.Instance.UpdateName(null);
-            BlankSpan.Instance.SetAttribute(null, string.Empty);
-            BlankSpan.Instance.SetAttribute(string.Empty, null);
-            BlankSpan.Instance.SetAttribute(null, "foo");
-            BlankSpan.Instance.SetAttribute(null, 1L);
-            BlankSpan.Instance.SetAttribute(null, 0.1d);
-            BlankSpan.Instance.SetAttribute(null, true);
-            BlankSpan.Instance.AddEvent((string)null);
-            BlankSpan.Instance.AddEvent((Event)null);
+            NoopSpan.Instance.Status = new Status();
+            NoopSpan.Instance.UpdateName(null);
+            NoopSpan.Instance.SetAttribute(null, string.Empty);
+            NoopSpan.Instance.SetAttribute(string.Empty, null);
+            NoopSpan.Instance.SetAttribute(null, "foo");
+            NoopSpan.Instance.SetAttribute(null, 1L);
+            NoopSpan.Instance.SetAttribute(null, 0.1d);
+            NoopSpan.Instance.SetAttribute(null, true);
+            NoopSpan.Instance.AddEvent((string)null);
+            NoopSpan.Instance.AddEvent((Event)null);
         }
     }
 }

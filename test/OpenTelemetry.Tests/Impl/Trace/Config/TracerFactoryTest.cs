@@ -33,13 +33,13 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void CreateFactory_NullBuilder()
         {
-            Assert.Throws<ArgumentNullException>(() => TracerFactory.Create(null));
+            Assert.Throws<ArgumentNullException>(() => TracerProviderSdk.Create(null));
         }
 
         [Fact]
         public void CreateFactory_DefaultBuilder()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer = tracerFactory.GetTracer("");
             Assert.NotNull(tracer);
             Assert.IsType<TracerSdk>(tracer);
@@ -68,7 +68,7 @@ namespace OpenTelemetry.Trace.Test
             TestAdapter adapter1 = null;
             TestAdapter adapter2 = null;
             TestProcessor processor = null;
-            var tracerFactory = TracerFactory.Create(b => b
+            var tracerFactory = TracerProviderSdk.Create(b => b
                 .AddProcessorPipeline(p => p
                     .SetExporter(testExporter)
                     .SetExportingProcessor(e =>
@@ -138,7 +138,7 @@ namespace OpenTelemetry.Trace.Test
             TestProcessor testProcessor1 = null;
             var testProcessor2 = new TestProcessor(_ => processCalledCount++);
 
-            var tracerFactory = TracerFactory.Create(b => b
+            var tracerFactory = TracerProviderSdk.Create(b => b
                 .AddProcessorPipeline(p => p
                     .SetExporter(testExporter)
                     .SetExportingProcessor(e =>
@@ -164,7 +164,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracer_NoName_NoVersion()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer = (TracerSdk)tracerFactory.GetTracer("");
             Assert.DoesNotContain(tracer.LibraryResource.Attributes, kvp => kvp.Key == "name");
             Assert.DoesNotContain(tracer.LibraryResource.Attributes, kvp => kvp.Key == "version");
@@ -173,7 +173,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracer_NoName_Version()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer = (TracerSdk)tracerFactory.GetTracer(null, "semver:1.0.0");
             Assert.DoesNotContain(tracer.LibraryResource.Attributes, kvp => kvp.Key == "name");
             Assert.DoesNotContain(tracer.LibraryResource.Attributes, kvp => kvp.Key == "version");
@@ -182,7 +182,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracer_Name_NoVersion()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer = (TracerSdk)tracerFactory.GetTracer("foo");
             Assert.Equal("foo", tracer.LibraryResource.Attributes.Single(kvp => kvp.Key == "name").Value);
             Assert.DoesNotContain(tracer.LibraryResource.Attributes, kvp => kvp.Key == "version");
@@ -191,7 +191,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracer_Name_Version()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer = (TracerSdk)tracerFactory.GetTracer("foo", "semver:1.2.3");
             Assert.Equal("foo", tracer.LibraryResource.Attributes.Single(kvp => kvp.Key == "name").Value);
             Assert.Equal("semver:1.2.3", tracer.LibraryResource.Attributes.Single(kvp => kvp.Key == "version").Value);
@@ -200,7 +200,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracerReturnsTracerWithResourceAfterSetResource()
         {
-            var tracerFactory = TracerFactory.Create(b => { b.SetResource(new Resource(new Dictionary<string, object>() { { "a", "b" } })); });
+            var tracerFactory = TracerProviderSdk.Create(b => { b.SetResource(new Resource(new Dictionary<string, object>() { { "a", "b" } })); });
             var tracer = (TracerSdk)tracerFactory.GetTracer("foo", "semver:1.2.3");
             Assert.Equal("b", tracer.LibraryResource.Attributes.Single(kvp => kvp.Key == "a").Value);
             Assert.Equal("foo", tracer.LibraryResource.Attributes.Single(kvp => kvp.Key == "name").Value);
@@ -210,7 +210,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void GetTracerReturnsTracerWithResourceOverriddenBySetResource()
         {
-            var tracerFactory = TracerFactory.Create(b =>
+            var tracerFactory = TracerProviderSdk.Create(b =>
             {
                 b.SetResource(new Resource(new Dictionary<string, object>() { { "a", "b" } }))
                 .SetResource(new Resource(new Dictionary<string, object>() { { "a", "c" } }));
@@ -222,7 +222,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void FactoryReturnsSameTracerForGivenNameAndVersion()
         {
-            var tracerFactory = TracerFactory.Create(b => { });
+            var tracerFactory = TracerProviderSdk.Create(b => { });
             var tracer1 = tracerFactory.GetTracer("foo", "semver:1.2.3");
             var tracer2 = tracerFactory.GetTracer("foo");
             var tracer3 = tracerFactory.GetTracer("foo", "semver:2.3.4");

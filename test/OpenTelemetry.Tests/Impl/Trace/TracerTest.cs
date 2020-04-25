@@ -37,13 +37,13 @@ namespace OpenTelemetry.Trace.Test
         private readonly SpanProcessor spanProcessor;
         private readonly TracerConfiguration tracerConfiguration;
         private readonly TracerSdk tracerSdk;
-        private readonly TracerFactory tracerFactory;
+        private readonly TracerProviderSdk tracerFactory;
 
         public TracerTest()
         {
             spanProcessor = new SimpleSpanProcessor(new TestExporter(null));
             tracerConfiguration = new TracerConfiguration();
-            tracerFactory = TracerFactory.Create(b => b
+            tracerFactory = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(_ => spanProcessor)));
             this.tracerSdk = (TracerSdk)tracerFactory.GetTracer(null);
         }
@@ -86,13 +86,13 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void Tracer_StartSpan_FromParent_BadArgs_NullSpanName()
         {
-            var span1 = (SpanSdk)this.tracerSdk.StartSpan(null, BlankSpan.Instance);
+            var span1 = (SpanSdk)this.tracerSdk.StartSpan(null, NoopSpan.Instance);
             Assert.Equal(string.Empty, span1.Name);
 
-            var span2 = (SpanSdk)this.tracerSdk.StartSpan(null, BlankSpan.Instance, SpanKind.Client);
+            var span2 = (SpanSdk)this.tracerSdk.StartSpan(null, NoopSpan.Instance, SpanKind.Client);
             Assert.Equal(string.Empty, span2.Name);
 
-            var span3 = (SpanSdk)this.tracerSdk.StartSpan(null, BlankSpan.Instance, SpanKind.Client, null);
+            var span3 = (SpanSdk)this.tracerSdk.StartSpan(null, NoopSpan.Instance, SpanKind.Client, null);
             Assert.Equal(string.Empty, span3.Name);
         }
 
@@ -161,7 +161,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void CreateSpan_NotSampled()
         {
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .SetSampler(new AlwaysOffSampler())
                     .AddProcessorPipeline(p => p.AddProcessor(n => spanProcessor)))
                 .GetTracer(null);
@@ -196,7 +196,7 @@ namespace OpenTelemetry.Trace.Test
         {
             var maxNumberOfAttributes = 8;
             var traceConfig = new TracerConfiguration(maxNumberOfAttributes, 128, 32);
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(n => spanProcessor))
                     .SetTracerOptions(traceConfig)
                     .SetSampler(new AlwaysOnSampler()))
@@ -248,7 +248,7 @@ namespace OpenTelemetry.Trace.Test
         {
             var maxNumberOfEvents = 8;
             var traceConfig = new TracerConfiguration(32, maxNumberOfEvents, 32);
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(n => spanProcessor))
                     .SetTracerOptions(traceConfig)
                     .SetSampler(new AlwaysOnSampler()))
@@ -287,7 +287,7 @@ namespace OpenTelemetry.Trace.Test
 
             var maxNumberOfLinks = 8;
             var traceConfig = new TracerConfiguration(32, 128, maxNumberOfLinks);
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(n => spanProcessor))
                     .SetTracerOptions(traceConfig)
                     .SetSampler(new AlwaysOnSampler()))
@@ -329,7 +329,7 @@ namespace OpenTelemetry.Trace.Test
 
             var maxNumberOfLinks = 8;
             var traceConfig = new TracerConfiguration(32, 128, maxNumberOfLinks);
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(n => spanProcessor))
                     .SetTracerOptions(traceConfig)
                     .SetSampler(new AlwaysOnSampler()))
@@ -367,7 +367,7 @@ namespace OpenTelemetry.Trace.Test
         {
             var maxNumberOfAttributes = 8;
             var traceConfig = new TracerConfiguration(maxNumberOfAttributes, 128, 32);
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .AddProcessorPipeline(p => p.AddProcessor(_ => this.spanProcessor))
                     .SetTracerOptions(traceConfig)
                     .SetSampler(new AlwaysOnSampler()))

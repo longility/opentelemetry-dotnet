@@ -18,7 +18,7 @@ namespace LoggingTracer.Demo.AspNetCore
         {
             services.AddOpenTelemetry(() =>
             {
-                var tracerFactory = new LoggingTracerFactory();
+                var tracerFactory = new LoggingTracerProvider();
                 var tracer = tracerFactory.GetTracer("ServerApp", "semver:1.0.0");
 
                 var dependenciesAdapter = new DependenciesAdapter(tracerFactory);

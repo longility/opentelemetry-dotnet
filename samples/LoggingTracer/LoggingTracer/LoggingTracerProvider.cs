@@ -18,7 +18,7 @@ using OpenTelemetry.Trace;
 
 namespace LoggingTracer
 {
-    public class LoggingTracerFactory : TracerFactoryBase
+    public class LoggingTracerProvider : TracerProvider
     {
         /// <inheritdoc/>
         public override Tracer GetTracer(string name, string version = null)
