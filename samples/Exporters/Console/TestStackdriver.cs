@@ -31,7 +31,7 @@ namespace Samples
         {
             var spanExporter = new StackdriverTraceExporter(projectId);
 
-            using var tracerFactory = TracerFactory.Create(builder => builder.AddProcessorPipeline(c => c.SetExporter(spanExporter)));
+            using var tracerFactory = TracerProviderSdk.Create(builder => builder.AddProcessorPipeline(c => c.SetExporter(spanExporter)));
             var tracer = tracerFactory.GetTracer("stackdriver-test");
 
             DistributedContext.Carrier = AsyncLocalDistributedContextCarrier.Instance; // Enable asynclocal carrier for the context

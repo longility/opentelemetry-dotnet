@@ -25,32 +25,32 @@ namespace OpenTelemetry.Tests.Impl.Trace.Config
     {
         public TracerFactoryBaseTests()
         {
-            TracerFactoryBase.Default.Reset();
+            TracerProvider.Default.Reset();
         }
 
         [Fact]
         public void TraceFactory_Default()
         {
-            Assert.NotNull(TracerFactoryBase.Default);
-            var defaultTracer = TracerFactoryBase.Default.GetTracer("");
+            Assert.NotNull(TracerProvider.Default);
+            var defaultTracer = TracerProvider.Default.GetTracer("");
             Assert.NotNull(defaultTracer);
-            Assert.Same(defaultTracer, TracerFactoryBase.Default.GetTracer("named tracerSdk"));
+            Assert.Same(defaultTracer, TracerProvider.Default.GetTracer("named tracerSdk"));
 
             var span = defaultTracer.StartSpan("foo");
-            Assert.IsType<BlankSpan>(span);
+            Assert.IsType<NoopSpan>(span);
         }
 
         [Fact]
         public void TraceFactory_SetDefault()
         {
-            var factory = TracerFactory.Create(b => { });
-            TracerFactoryBase.SetDefault(factory);
+            var factory = TracerProviderSdk.Create(b => { });
+            TracerProvider.SetDefault(factory);
 
-            var defaultTracer = TracerFactoryBase.Default.GetTracer("");
+            var defaultTracer = TracerProvider.Default.GetTracer("");
             Assert.NotNull(defaultTracer);
             Assert.IsType<TracerSdk>(defaultTracer);
 
-            Assert.NotSame(defaultTracer, TracerFactoryBase.Default.GetTracer("named tracerSdk"));
+            Assert.NotSame(defaultTracer, TracerProvider.Default.GetTracer("named tracerSdk"));
 
             var span = defaultTracer.StartSpan("foo");
             Assert.IsType<SpanSdk>(span);
@@ -59,35 +59,35 @@ namespace OpenTelemetry.Tests.Impl.Trace.Config
         [Fact]
         public void TraceFactory_SetDefaultNull()
         {
-            Assert.Throws<ArgumentNullException>(() => TracerFactoryBase.SetDefault(null));
+            Assert.Throws<ArgumentNullException>(() => TracerProvider.SetDefault(null));
         }
 
         [Fact]
         public void TraceFactory_SetDefaultTwice_Throws()
         {
-            TracerFactoryBase.SetDefault(TracerFactory.Create(b => { }));
-            Assert.Throws<InvalidOperationException>(() => TracerFactoryBase.SetDefault(TracerFactory.Create(b => { })));
+            TracerProvider.SetDefault(TracerProviderSdk.Create(b => { }));
+            Assert.Throws<InvalidOperationException>(() => TracerProvider.SetDefault(TracerProviderSdk.Create(b => { })));
         }
 
         [Fact]
         public void TraceFactory_UpdateDefault_CachedTracer()
         {
-            var defaultTracer = TracerFactoryBase.Default.GetTracer("");
+            var defaultTracer = TracerProvider.Default.GetTracer("");
             var noopSpan = defaultTracer.StartSpan("foo");
-            Assert.IsType<BlankSpan>(noopSpan);
+            Assert.IsType<NoopSpan>(noopSpan);
 
-            TracerFactoryBase.SetDefault(TracerFactory.Create(b => { }));
+            TracerProvider.SetDefault(TracerProviderSdk.Create(b => { }));
             var span = defaultTracer.StartSpan("foo");
             Assert.IsType<SpanSdk>(span);
 
-            var newDefaultTracer = TracerFactoryBase.Default.GetTracer("");
+            var newDefaultTracer = TracerProvider.Default.GetTracer("");
             Assert.NotSame(defaultTracer, newDefaultTracer);
             Assert.IsType<TracerSdk>(newDefaultTracer);
         }
 
         public void Dispose()
         {
-            TracerFactoryBase.Default.Reset();
+            TracerProvider.Default.Reset();
         }
     }
 }

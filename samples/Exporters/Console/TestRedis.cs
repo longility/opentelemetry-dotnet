@@ -31,7 +31,7 @@ namespace Samples
             var connection = ConnectionMultiplexer.Connect("localhost:6379");
 
             // Configure exporter to export traces to Zipkin
-            using var tracerFactory = TracerFactory.Create(builder => builder
+            using var tracerFactory = TracerProviderSdk.Create(builder => builder
                 .UseZipkin(o =>
                 {
                     o.ServiceName = "redis-test";

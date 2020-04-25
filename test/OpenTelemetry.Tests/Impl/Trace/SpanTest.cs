@@ -38,7 +38,7 @@ namespace OpenTelemetry.Trace.Test
         private readonly List<KeyValuePair<string, object>> expectedAttributes;
         private readonly Mock<SpanProcessor> spanProcessorMock = new Mock<SpanProcessor>();
         private readonly SpanProcessor spanProcessor;
-        private readonly TracerFactory tracerFactory;
+        private readonly TracerProviderSdk tracerFactory;
 
         public SpanTest()
         {
@@ -46,7 +46,7 @@ namespace OpenTelemetry.Trace.Test
             Activity.ForceDefaultIdFormat = true;
 
             spanProcessor = spanProcessorMock.Object;
-            tracerFactory = TracerFactory.Create(b => b.AddProcessorPipeline(p => p.AddProcessor(_ => spanProcessor)));
+            tracerFactory = TracerProviderSdk.Create(b => b.AddProcessorPipeline(p => p.AddProcessor(_ => spanProcessor)));
             attributes.Add("MyStringAttributeKey", "MyStringAttributeValue");
             attributes.Add("MyLongAttributeKey", 123L);
             attributes.Add("MyBooleanAttributeKey", false);
@@ -741,7 +741,7 @@ namespace OpenTelemetry.Trace.Test
         [Fact]
         public void NotRecordedSpan_NoAttributesOrEventsAdded()
         {
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .SetSampler(new AlwaysOffSampler()))
                 .GetTracer(null);
 
@@ -1599,7 +1599,7 @@ namespace OpenTelemetry.Trace.Test
         public void StartSpan_WithAttributes_PassesAttributesToSampler_AndSetsOnSpan()
         {
             var samplerMock = new Mock<Sampler>();
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .SetSampler(samplerMock.Object)
                     .AddProcessorPipeline(p => p.AddProcessor(_ => spanProcessor)))
                 .GetTracer(null);
@@ -1630,7 +1630,7 @@ namespace OpenTelemetry.Trace.Test
         public void StartNotSampledSpan_WithAttributes_PassesAttributesToSampler_DoesNotSetAttributesOnSpan()
         {
             var samplerMock = new Mock<Sampler>();
-            var tracer = TracerFactory.Create(b => b
+            var tracer = TracerProviderSdk.Create(b => b
                     .SetSampler(samplerMock.Object)
                     .AddProcessorPipeline(p => p.AddProcessor(_ => spanProcessor)))
                 .GetTracer(null);

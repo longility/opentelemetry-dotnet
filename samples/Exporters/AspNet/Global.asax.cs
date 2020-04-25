@@ -8,11 +8,11 @@ namespace OpenTelemetry.Exporter.AspNet
 {
     public class WebApiApplication : HttpApplication
     {
-        private TracerFactory tracerFactory;
+        private TracerProviderSdk tracerFactory;
 
         protected void Application_Start()
         {
-            this.tracerFactory = TracerFactory.Create(builder =>
+            this.tracerFactory = TracerProviderSdk.Create(builder =>
             {
                 builder
                      .UseJaeger(c =>

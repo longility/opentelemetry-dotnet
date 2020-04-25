@@ -1,4 +1,4 @@
-﻿// <copyright file="ProxyTracer.cs" company="OpenTelemetry Authors">
+﻿// <copyright file="NoopTracer.cs" company="OpenTelemetry Authors">
 // Copyright 2018, OpenTelemetry Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,58 +17,49 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using OpenTelemetry.Context.Propagation;
 
 namespace OpenTelemetry.Trace
 {
     /// <summary>
     /// No-op tracer.
     /// </summary>
-    internal sealed class ProxyTracer : Tracer
+    public sealed class NoopTracer : Tracer
     {
         private static readonly IDisposable NoopScope = new NoopDisposable();
 
-        private Tracer realTracer;
+        private readonly TelemetrySpan noopSpan = new NoopSpan();
 
         /// <inheritdoc/>
-        public override TelemetrySpan CurrentSpan => this.realTracer?.CurrentSpan ?? BlankSpan.Instance;
+        public override TelemetrySpan CurrentSpan => this.noopSpan;
 
         /// <inheritdoc/>
         public override IDisposable WithSpan(TelemetrySpan span, bool endOnDispose)
         {
-            return this.realTracer != null ? this.realTracer.WithSpan(span, endOnDispose) : NoopScope;
+            return NoopScope;
         }
 
+        /// <inheritdoc/>
         public override TelemetrySpan StartRootSpan(string operationName, SpanKind kind, SpanCreationOptions options)
         {
-            return this.realTracer != null ? this.realTracer.StartRootSpan(operationName, kind, options) : BlankSpan.Instance;
+            return this.noopSpan;
         }
 
+        /// <inheritdoc/>
         public override TelemetrySpan StartSpan(string operationName, TelemetrySpan parent, SpanKind kind, SpanCreationOptions options)
         {
-            return this.realTracer != null ? this.realTracer.StartSpan(operationName, parent, kind, options) : BlankSpan.Instance;
+            return this.noopSpan;
         }
 
+        /// <inheritdoc/>
         public override TelemetrySpan StartSpan(string operationName, in SpanContext parent, SpanKind kind, SpanCreationOptions options)
         {
-            return this.realTracer != null ? this.realTracer.StartSpan(operationName, parent, kind, options) : BlankSpan.Instance;
+            return this.noopSpan;
         }
 
+        /// <inheritdoc/>
         public override TelemetrySpan StartSpanFromActivity(string operationName, Activity activity, SpanKind kind, IEnumerable<Link> links)
         {
-            return this.realTracer != null ? this.realTracer.StartSpanFromActivity(operationName, activity, kind, links) : BlankSpan.Instance;
-        }
-
-        public void UpdateTracer(Tracer realTracer)
-        {
-            if (this.realTracer != null)
-            {
-                return;
-            }
-
-            // just in case user calls init concurrently
-            Interlocked.CompareExchange(ref this.realTracer, realTracer, null);
+            return this.noopSpan;
         }
 
         private class NoopDisposable : IDisposable

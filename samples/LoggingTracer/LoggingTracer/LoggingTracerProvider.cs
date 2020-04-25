@@ -18,10 +18,15 @@ using OpenTelemetry.Trace;
 
 namespace LoggingTracer
 {
-    public class LoggingTracerFactory : TracerFactoryBase
+    public class LoggingTracerProvider : TracerProvider, ITracerProvider
     {
+        public LoggingTracerProvider()
+        {
+            GlobalInstance = this;
+        }
+
         /// <inheritdoc/>
-        public override Tracer GetTracer(string name, string version = null)
+        public new Tracer GetTracer(string name, string version = null)
         {
             Logger.Log($"ITracerFactory.GetTracer('{name}', '{version}')");
 

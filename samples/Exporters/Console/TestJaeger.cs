@@ -26,7 +26,7 @@ namespace Samples
         internal static object Run(string host, int port)
         {
             // Create a tracer.
-            using var tracerFactory = TracerFactory.Create(
+            using var tracerFactory = TracerProviderSdk.Create(
                 builder => builder.UseJaeger(o =>
                 {
                     o.ServiceName = "jaeger-test";
