@@ -1,4 +1,4 @@
-﻿// <copyright file="TracerFactoryBase.cs" company="OpenTelemetry Authors">
+﻿// <copyright file="TracerFactory.cs" company="OpenTelemetry Authors">
 // Copyright 2018, OpenTelemetry Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,36 +20,48 @@ namespace OpenTelemetry.Trace
     /// <summary>
     /// Creates Tracers for an instrumentation library.
     /// </summary>
-    public class TracerFactoryBase
+    public class TracerFactory
     {
-        private static ProxyTracer proxy = new ProxyTracer();
+        private static TracerFactory defaultTracerFactory = new TracerFactory();
         private static bool isInitialized;
-        private static TracerFactoryBase defaultFactory = new TracerFactoryBase();
+        private static ProxyTracer proxy;
+        private TracerProvider tracerProvider;
 
-        /// <summary>
-        /// Gets the default instance of <see cref="TracerFactoryBase"/>.
-        /// </summary>
-        public static TracerFactoryBase Default
+        public TracerFactory(TracerProvider tracerProvider)
         {
-            get => defaultFactory;
+            this.tracerProvider = tracerProvider;
+        }
+
+        private TracerFactory()
+        {
+            this.tracerProvider = new NoopTracerProvider();
+            proxy = new ProxyTracer(this.tracerProvider.GetTracer(null));
         }
 
         /// <summary>
-        /// Sets the default instance of <see cref="TracerFactoryBase"/>.
+        /// Gets the default instance of <see cref="TracerFactory"/>.
         /// </summary>
-        /// <param name="tracerFactory">Instance of <see cref="TracerFactoryBase"/>.</param>
+        public static TracerFactory Default
+        {
+            get => defaultTracerFactory;
+        }
+
+        /// <summary>
+        /// Sets the default instance of <see cref="TracerFactory"/>.
+        /// </summary>
+        /// <param name="tracerFactory">Instance of <see cref="TracerFactory"/>.</param>
         /// <remarks>
         /// This method can only be called once. Calling it multiple times will throw an <see cref="System.InvalidOperationException"/>.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">Thrown when called multiple times.</exception>
-        public static void SetDefault(TracerFactoryBase tracerFactory)
+        public static void SetDefault(TracerFactory tracerFactory)
         {
             if (isInitialized)
             {
-                throw new InvalidOperationException("Default factory is already set");
+                throw new InvalidOperationException("Default tracer factory is already set");
             }
 
-            defaultFactory = tracerFactory ?? throw new ArgumentNullException(nameof(tracerFactory));
+            defaultTracerFactory = tracerFactory ?? throw new ArgumentNullException(nameof(tracerFactory));
 
             // some libraries might have already used and cached ProxyTracer.
             // let's update it to real one and forward all calls.
@@ -57,7 +69,7 @@ namespace OpenTelemetry.Trace
             // resource assignment is not possible for libraries that cache tracer before SDK is initialized.
             // SDK (Tracer) must be at least partially initialized before any collection starts to capture resources.
             // we might be able to work this around with events.
-            proxy.UpdateTracer(defaultFactory.GetTracer(null));
+            proxy.UpdateTracer(defaultTracerFactory.GetTracer(null));
 
             isInitialized = true;
         }
@@ -70,15 +82,14 @@ namespace OpenTelemetry.Trace
         /// <returns>Tracer for the given name and version information.</returns>
         public virtual Tracer GetTracer(string name, string version = null)
         {
-            return isInitialized ? defaultFactory.GetTracer(name, version) : proxy;
+            return isInitialized ? defaultTracerFactory.tracerProvider.GetTracer(name, version) : proxy;
         }
 
         // for tests
         internal void Reset()
         {
-            proxy = new ProxyTracer();
+            defaultTracerFactory = new TracerFactory();
             isInitialized = false;
-            defaultFactory = new TracerFactoryBase();
         }
     }
 }
